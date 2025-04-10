@@ -29,8 +29,8 @@
 - `user_id` UUID NOT NULL REFERENCES users(id)
 - `model` VARCHAR NOT NULL
 - `generated_count` INTEGER NOT NULL
-- `accepted_unedited_count` INTEGER NOT NULL
-- `accepted_edited_count` INTEGER NOT NULL
+- `accepted_unedited_count` INTEGER NULLABLE
+- `accepted_edited_count` INTEGER NULLABLE
 - `source_text_hash` VARCHAR NOT NULL
 - `source_text_length` INTEGER NOT NULL CHECK (source_text_length BETWEEN 1000 AND 10000)
 - `generation_duration` INTEGER NOT NULL
