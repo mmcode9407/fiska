@@ -1,11 +1,11 @@
 ---
 import "../styles/global.css";
-
+import { Toaster } from "@/components/ui/sonner";
 interface Props {
   title?: string;
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const { title = "Fiska" } = Astro.props;
 ---
 
 <!doctype html>
@@ -19,6 +19,7 @@ const { title = "10x Astro Starter" } = Astro.props;
   </head>
   <body>
     <slot />
+    <Toaster richColors client:only="react" />
   </body>
 </html>
 
