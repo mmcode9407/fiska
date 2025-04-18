@@ -2,16 +2,22 @@ import type { SupabaseClient } from "../db/supabase.client";
 import type { FlashcardProposalDTO, GenerationCreateResponseDTO } from "../types";
 import crypto from "crypto";
 import { DEFAULT_USER_ID } from "../db/supabase.client";
+import { OpenRouterService } from "./openrouter.service";
 
 export class GenerationService {
-  constructor(private readonly supabase: SupabaseClient) {}
+  private readonly openRouter: OpenRouterService;
+  private readonly model: string = "google/gemini-2.0-flash-exp:free";
+
+  constructor(private readonly supabase: SupabaseClient) {
+    this.openRouter = new OpenRouterService();
+  }
 
   async generateFlashcards(sourceText: string): Promise<GenerationCreateResponseDTO> {
     const startTime = Date.now();
 
     try {
-      // Symulacja generowania fiszek przez AI
-      const flashcardsProposals = await this.callAIService(sourceText);
+      // Generowanie fiszek przez OpenRouter API
+      const flashcardsProposals = await this.generateFlashcardsWithAI(sourceText);
 
       // Generuj hash tekstu
       const hashedText = this.generateHash(sourceText);
@@ -44,16 +50,69 @@ export class GenerationService {
     return crypto.createHash("md5").update(text).digest("hex");
   }
 
-  private async callAIService(text: string): Promise<FlashcardProposalDTO[]> {
-    // Symulacja opóźnienia odpowiedzi z serwisu AI
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+  private async generateFlashcardsWithAI(text: string): Promise<FlashcardProposalDTO[]> {
+    const systemMessage = `Jesteś ekspertem w tworzeniu fiszek edukacyjnych. 
+    Przeanalizuj podany tekst i stwórz z niego fiszki edukacyjne. 
+    Każda fiszka powinna zawierać pytanie (front) i odpowiedź (back).
+    Pytania powinny być zwięzłe i konkretne, a odpowiedzi jasne i precyzyjne.
+    Nie twórz fiszek z definicjami, które są oczywiste lub zbyt proste.
+    Skoncentruj się na najważniejszych koncepcjach i związkach między nimi.`;
 
-    // Mock wygenerowanych fiszek
-    return Array.from({ length: 3 }, (_, index) => ({
-      front: `Front ${index + 1} (text length: ${text.length})`,
-      back: `Back ${index + 1}`,
-      source: "ai-full",
-    }));
+    const userMessage = `Wygeneruj fiszki z poddanego tekstu: ${text}`;
+
+    const responseFormat = {
+      type: "json_schema",
+      json_schema: {
+        name: "flashcards",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            flashcards: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  front: { type: "string" },
+                  back: { type: "string" },
+                },
+                required: ["front", "back"],
+              },
+            },
+          },
+          required: ["flashcards"],
+        },
+      },
+    };
+
+    const response = await this.openRouter.sendMessage(systemMessage, userMessage, responseFormat, this.model, {
+      parameter: 0.7,
+      top_p: 0.9,
+      frequency_penalty: 0.3,
+      presence_penalty: 0.3,
+    });
+
+    console.log("OpenRouter response:", response);
+    console.log("content", response.choices[0].message.content);
+
+    try {
+      const content = JSON.parse(response.choices[0].message.content);
+      console.log("Parsed content:", content);
+
+      if (!content.flashcards || !Array.isArray(content.flashcards)) {
+        throw new Error("Nieprawidłowy format odpowiedzi: brak tablicy flashcards");
+      }
+
+      return content.flashcards.map((card: { front: string; back: string }) => ({
+        front: card.front,
+        back: card.back,
+        source: "ai-full" as const,
+      }));
+    } catch (error) {
+      console.error("Error parsing AI response:", error);
+      console.error("Raw response content:", response.choices[0].message.content);
+      throw new Error("Nie udało się przetworzyć odpowiedzi z modelu AI");
+    }
   }
 
   private async saveGenerationMetadata(data: {
@@ -66,7 +125,7 @@ export class GenerationService {
       .from("generations")
       .insert({
         user_id: DEFAULT_USER_ID,
-        model: "mock-model-v1",
+        model: this.model,
         source_text_hash: data.hashedText,
         source_text_length: data.sourceTextLength,
         generation_duration: data.generationDuration,
@@ -91,7 +150,7 @@ export class GenerationService {
   ) {
     await this.supabase.from("generation_error_logs").insert({
       user_id: DEFAULT_USER_ID,
-      model: "mock-model-v1",
+      model: this.model,
       error_code: error instanceof Error ? error.name : "Unknown error",
       error_message: error instanceof Error ? error.message : String(error),
       source_text_hash: data.hashedText,
