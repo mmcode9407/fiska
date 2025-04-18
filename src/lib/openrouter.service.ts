@@ -36,8 +36,6 @@ export class OpenRouterService {
     modelParams?: ModelParameters
   ): Promise<ResponseData> {
     const payload = this._prepareRequestPayload(systemMsg, userMsg, responseFormat, model, modelParams);
-    console.log("Sending payload to OpenRouter:", JSON.stringify(payload, null, 2));
-
     return this._sendRequest(payload);
   }
 
@@ -68,22 +66,16 @@ export class OpenRouterService {
           throw new Error(`HTTP error! status: ${response.status}, body: ${response.statusText}`);
         }
 
-        let data;
-        try {
-          data = await response.json();
-          console.log("Parsed OpenRouter API response:", JSON.stringify(data, null, 2));
-        } catch (_parseError) {
-          throw new Error(`Failed to parse API response: ${response.statusText}`);
-        }
+        const data = await response.json();
 
         return this._validateResponse(data);
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.error("OpenRouter API error:", lastError);
 
         if (attempt < this.retryAttempts - 1) {
-          console.log(`Retrying request (attempt ${attempt + 2}/${this.retryAttempts})...`);
-          await new Promise((resolve) => setTimeout(resolve, this.retryDelay * Math.pow(2, attempt)));
+          const delay = this.retryDelay * Math.pow(2, attempt);
+
+          await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
       }
@@ -113,10 +105,8 @@ export class OpenRouterService {
 
   // Prywatna metoda do walidacji odpowiedzi
   private _validateResponse(response: unknown): ResponseData {
-    console.log("Validating response:", JSON.stringify(response, null, 2));
     const validatedResponse = responseSchema.safeParse(response);
     if (!validatedResponse.success) {
-      console.error("Validation error:", validatedResponse.error);
       throw new Error(`Nieprawidłowy format odpowiedzi z API: ${JSON.stringify(validatedResponse.error.errors)}`);
     }
     return validatedResponse.data;

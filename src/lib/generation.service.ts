@@ -92,12 +92,8 @@ export class GenerationService {
       presence_penalty: 0.3,
     });
 
-    console.log("OpenRouter response:", response);
-    console.log("content", response.choices[0].message.content);
-
     try {
       const content = JSON.parse(response.choices[0].message.content);
-      console.log("Parsed content:", content);
 
       if (!content.flashcards || !Array.isArray(content.flashcards)) {
         throw new Error("Nieprawidłowy format odpowiedzi: brak tablicy flashcards");
@@ -110,7 +106,6 @@ export class GenerationService {
       }));
     } catch (error) {
       console.error("Error parsing AI response:", error);
-      console.error("Raw response content:", response.choices[0].message.content);
       throw new Error("Nie udało się przetworzyć odpowiedzi z modelu AI");
     }
   }
