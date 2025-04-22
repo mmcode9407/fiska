@@ -47,9 +47,12 @@ Tytuł: Rejestracja i logowanie użytkownika
 Opis: Jako nowy użytkownik chcę móc zarejestrować się za pomocą email i hasła, aby uzyskać dostęp do aplikacji i przechowywać swoje fiszki.
 Kryteria akceptacji:
 
-- Formularz rejestracyjny z wymaganymi polami.
-- Wysłanie emaila z potwierdzeniem rejestracji.
-- Możliwość logowania po potwierdzeniu konta.
+- Logowanie i rejestracja odbywają się na dedykowanych stronach.
+- Logowanie wymaga podania adresu email i hasła.
+- Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+- Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+- Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+- Odzyskiwanie hasła powinno być możliwe.
 
 ID: US-002
 Tytuł: Generowanie fiszek przez AI
@@ -101,7 +104,9 @@ Tytuł: Bezpieczny dostęp i autoryzacja
 Opis: Jako zalogowany użytkownik chcę mieć pewność, że moje fiszki nie są dostępne dla innych użytkowników, aby zachować prywatność i bezpieczeństwo danych.
 Kryteria akceptacji:
 
+- Użytkownik nie może poruszać się po aplikacji bez zalogowania (nie dotyczy stron rejestracji, logowania i przypomnienia hasła).
 - Tylko zalogowany użytkownik może wyświetlać, edytować i usuwać swoje fiszki.
+- Jeżeli użytkownik nie jest zalogowany po wejściu do aplikacji, powinien zostać automatycznie przekierowany na stronę logowania.
 - Nie ma dostępu do fiszek innych użytkowników ani możliwości współdzielenia.
 
 ## 6. Metryki sukcesu
