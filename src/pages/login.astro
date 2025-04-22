@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+---
+
+<Layout title="Logowanie | Fiska">
+  <AuthLayout title="Zaloguj się" description="Wprowadź swoje dane, aby się zalogować" client:load>
+    <LoginForm client:load />
+  </AuthLayout>
+</Layout>

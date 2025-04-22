@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { RegisterForm } from "@/components/auth/RegisterForm";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+---
+
+<Layout title="Rejestracja | Fiska">
+  <AuthLayout title="Zarejestruj się" description="Stwórz nowe konto, aby korzystać z Fiska" client:load>
+    <RegisterForm client:load />
+  </AuthLayout>
+</Layout>
