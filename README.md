@@ -19,6 +19,9 @@ Fiska is a web application designed to facilitate the creation of educational fl
 - **Frontend:** Astro 5, React 19, TypeScript 5, Tailwind CSS 4, Shadcn/ui
 - **Backend:** Supabase for database and authentication
 - **AI Integration:** Openrouter.ai for accessing various AI models
+- **Testing:**
+  - **Unit and Integration Tests:** Vitest, React Testing Library, MSW (Mock Service Worker)
+  - **E2E Tests:** Playwright (cross-browser testing with Chromium, Firefox, WebKit support)
 - **CI/CD & Hosting:** GitHub Actions and DigitalOcean
 
 ## Getting Started Locally
