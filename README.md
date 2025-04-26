@@ -6,6 +6,7 @@
 - [Tech Stack](#tech-stack)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
+- [Testing](#testing)
 - [Project Scope](#project-scope)
 - [Project Status](#project-status)
 - [License](#license)
@@ -62,6 +63,47 @@ Fiska is a web application designed to facilitate the creation of educational fl
 - `npm run lint` - Lints the project files.
 - `npm run lint:fix` - Automatically fixes linting errors.
 - `npm run format` - Formats the codebase using Prettier.
+
+## Testing
+
+Fiska includes a comprehensive testing setup:
+
+### Unit and Integration Tests (Vitest)
+
+Unit tests are implemented using Vitest and React Testing Library. The test files are placed alongside the components they test with the `.test.tsx` suffix.
+
+Key features:
+
+- **Fast Execution** - Vitest leverages Vite for quick test runs
+- **React Component Testing** - Using React Testing Library
+- **Coverage Reports** - Via @vitest/coverage-v8
+- **Visual UI** - Debugging interface with @vitest/ui
+- **Mocking** - API mocking with MSW (Mock Service Worker)
+
+Available scripts:
+
+- `npm test` - Runs all unit tests.
+- `npm run test:watch` - Runs tests in watch mode for development.
+- `npm run test:ui` - Opens the Vitest UI to visualize and debug tests.
+- `npm run test:coverage` - Generates test coverage report.
+
+### End-to-End Tests (Playwright)
+
+E2E tests are implemented using Playwright, focusing on Chromium browser testing. The tests are located in the `e2e` directory.
+
+Key features:
+
+- **Page Object Model** - Tests use the POM pattern for better maintainability
+- **Visual Testing** - Screenshots comparison with `toHaveScreenshot()`
+- **Test Recording** - With the Playwright codegen tool
+- **Debugging Tools** - Traces, screenshots, and videos on failure
+- **Parallel Execution** - For faster test runs
+
+Available scripts:
+
+- `npm run test:e2e` - Runs end-to-end tests with Playwright.
+- `npm run test:e2e:ui` - Opens Playwright UI for debugging E2E tests.
+- `npm run test:e2e:codegen` - Launches Playwright's codegen tool to record tests.
 
 ## Project Scope
 
