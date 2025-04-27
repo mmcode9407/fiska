@@ -35,7 +35,10 @@ export function FlashcardItem({ flashcard, onToggleAccept, onEdit }: FlashcardIt
   const hasChanges = front !== flashcard.front || back !== flashcard.back;
 
   return (
-    <Card className={`transition-all ${flashcard.accepted ? "border-primary" : ""}`}>
+    <Card
+      className={`transition-all ${flashcard.accepted ? "border-primary" : ""}`}
+      data-test-id={`flashcard-item-${flashcard.id}`}
+    >
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div className="space-y-2">

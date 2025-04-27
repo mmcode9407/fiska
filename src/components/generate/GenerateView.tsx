@@ -88,8 +88,12 @@ export function GenerateView() {
   };
 
   return (
-    <div className="space-y-8">
-      {error && <div className="p-4 bg-destructive/15 text-destructive rounded-md">{error}</div>}
+    <div className="space-y-8" data-test-id="generate-view">
+      {error && (
+        <div className="p-4 bg-destructive/15 text-destructive rounded-md" data-test-id="generate-error">
+          {error}
+        </div>
+      )}
 
       <GenerateForm
         sourceText={sourceText}
@@ -101,7 +105,7 @@ export function GenerateView() {
       {isLoading && <GenerationSkeleton />}
 
       {flashcards.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4" data-test-id="flashcards-container">
           <>
             {generationId && (
               <SaveButtons
