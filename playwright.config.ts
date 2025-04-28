@@ -15,10 +15,16 @@ export default defineConfig({
     trace: "on-first-retry",
     baseURL: "http://localhost:3000",
   },
+  workers: process.env.CI ? 1 : undefined,
   projects: [
     {
       name: "setup",
       testMatch: "**/auth.setup.ts",
+      teardown: "cleanup",
+    },
+    {
+      name: "cleanup",
+      testMatch: /global\.teardown\.ts/,
     },
     {
       name: "chromium",
