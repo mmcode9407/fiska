@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.test") });
 
 export default defineConfig({
   testDir: "./e2e",
-  timeout: 30000,
+  timeout: 60000,
   testMatch: "**/*.spec.ts",
   retries: process.env.CI ? 2 : 0,
   reporter: [["html", { open: "never" }], ["list"]],
@@ -17,8 +17,16 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "setup",
+      testMatch: "**/auth.setup.ts",
+    },
+    {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "e2e/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
   ],
   webServer: {

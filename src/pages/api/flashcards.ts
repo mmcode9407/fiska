@@ -37,6 +37,20 @@ const createFlashcardsCommandSchema = z.object({
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Sprawdzenie czy użytkownik jest zalogowany
+    if (!locals.user?.id) {
+      return new Response(
+        JSON.stringify({
+          error: "Nieautoryzowany dostęp",
+          details: "Musisz być zalogowany, aby tworzyć fiszki",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Parsowanie body
     const body = (await request.json()) as CreateFlashcardCommand;
 
@@ -56,7 +70,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Zapis fiszek do bazy danych
-    const flashcardService = new FlashcardService(locals.supabase);
+    const flashcardService = new FlashcardService(locals.supabase, locals.user.id);
     const createdFlashcards = await flashcardService.createFlashcards(validationResult.data.flashcards);
 
     return new Response(JSON.stringify({ flashcards: createdFlashcards }), {

@@ -16,6 +16,20 @@ const generateFlashcardsSchema = z.object({
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Sprawdzenie czy użytkownik jest zalogowany
+    if (!locals.user?.id) {
+      return new Response(
+        JSON.stringify({
+          error: "Nieautoryzowany dostęp",
+          details: "Musisz być zalogowany, aby generować fiszki",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const body = (await request.json()) as GenerateFlashcardsCommand;
 
     // Walidacja source_text
@@ -33,7 +47,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const generationService = new GenerationService(locals.supabase);
+    const generationService = new GenerationService(locals.supabase, locals.user.id);
     const response = await generationService.generateFlashcards(body.source_text);
 
     return new Response(JSON.stringify(response), {

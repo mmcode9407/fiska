@@ -1,14 +1,16 @@
 import type { SupabaseClient } from "../db/supabase.client";
 import type { FlashcardProposalDTO, GenerationCreateResponseDTO } from "../types";
 import crypto from "crypto";
-import { DEFAULT_USER_ID } from "../db/supabase.client";
 import { OpenRouterService } from "./openrouter.service";
 
 export class GenerationService {
   private readonly openRouter: OpenRouterService;
   private readonly model: string = "google/gemini-2.0-flash-exp:free";
 
-  constructor(private readonly supabase: SupabaseClient) {
+  constructor(
+    private readonly supabase: SupabaseClient,
+    private readonly userId: string
+  ) {
     this.openRouter = new OpenRouterService();
   }
 
@@ -119,7 +121,7 @@ export class GenerationService {
     const { data: generation, error } = await this.supabase
       .from("generations")
       .insert({
-        user_id: DEFAULT_USER_ID,
+        user_id: this.userId,
         model: this.model,
         source_text_hash: data.hashedText,
         source_text_length: data.sourceTextLength,
@@ -144,7 +146,7 @@ export class GenerationService {
     }
   ) {
     await this.supabase.from("generation_error_logs").insert({
-      user_id: DEFAULT_USER_ID,
+      user_id: this.userId,
       model: this.model,
       error_code: error instanceof Error ? error.name : "Unknown error",
       error_message: error instanceof Error ? error.message : String(error),
