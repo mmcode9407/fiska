@@ -120,14 +120,15 @@ jobs:
           path: ./playwright-report
 
       - name: Create success comment
-        if: needs.unit-test.result == 'success' && needs.e2e-test.result == 'success'
+        if: needs.lint.result == 'success' && needs.unit-test.result == 'success' && needs.e2e-test.result == 'success'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const { context, github } = require('@actions/github');
 
+            // Sprawdź status lintowania
+            const lintStatus = '${{ needs.lint.result }}';
             let unitTestCoverage = 'Brak danych';
 
             // Spróbuj odczytać dane pokrycia testów jednostkowych
@@ -144,7 +145,7 @@ jobs:
             let statusComment = '## Status PR\n\n';
             statusComment += '| Test | Status | Coverage |\n';
             statusComment += '|------|--------|----------|\n';
-            statusComment += `| Linting | :white_check_mark: Passed | - |\n`;
+            statusComment += `| Linting | ${lintStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'}  | - |\n`;
             statusComment += `| Unit Tests | :white_check_mark: Passed | ${unitTestCoverage} |\n`;
             statusComment += `| E2E Tests | :white_check_mark: Passed | - |\n\n`;
             statusComment += '### :rocket: Wszystkie testy przeszły pomyślnie!';
@@ -158,13 +159,12 @@ jobs:
             });
 
       - name: Create failure comment
-        if: needs.unit-test.result != 'success' || needs.e2e-test.result != 'success'
+        if: needs.lint.result != 'success' || needs.unit-test.result != 'success' || needs.e2e-test.result != 'success'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const { context, github } = require('@actions/github');
 
             // Sprawdź status poprzednich zadań
             const lintStatus = '${{ needs.lint.result }}';
