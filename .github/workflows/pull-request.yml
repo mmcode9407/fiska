@@ -125,36 +125,20 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs');
+            const { owner, repo, pr_number } = ${{ steps.pr_details.outputs.result }};
 
-            // Sprawdź status lintowania
-            const lintStatus = '${{ needs.lint.result }}';
-            let unitTestCoverage = 'Brak danych';
-
-            // Spróbuj odczytać dane pokrycia testów jednostkowych
-            try {
-              if (fs.existsSync('./coverage/coverage-summary.json')) {
-                const coverageData = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
-                unitTestCoverage = `${coverageData.total.statements.pct}%`;
-              }
-            } catch (error) {
-              console.error('Błąd podczas odczytu danych pokrycia testów:', error);
-            }
-
-            // Utwórz treść komentarza
             let statusComment = '## Status PR\n\n';
-            statusComment += '| Test | Status | Coverage |\n';
-            statusComment += '|------|--------|----------|\n';
-            statusComment += `| Linting | ${lintStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'}  | - |\n`;
-            statusComment += `| Unit Tests | :white_check_mark: Passed | ${unitTestCoverage} |\n`;
-            statusComment += `| E2E Tests | :white_check_mark: Passed | - |\n\n`;
+            statusComment += '| Test | Status |\n';
+            statusComment += '|------|--------|\n';
+            statusComment += `| Linting | :white_check_mark: Passed |\n`;
+            statusComment += '| Unit Tests | :white_check_mark: Passed |\n';
+            statusComment += '| E2E Tests | :white_check_mark: Passed |\n\n';
             statusComment += '### :rocket: Wszystkie testy przeszły pomyślnie!';
 
-            // Dodaj komentarz do PR
             github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
+              owner: owner,
+              repo: repo,
+              issue_number: pr_number,
               body: statusComment
             });
 
@@ -164,37 +148,22 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs');
+            const { owner, repo, pr_number } = ${{ steps.pr_details.outputs.result }};
+            const lintStatus = "${{ needs.lint.result }}" === "success" ? "✅" : "❌";
+            const unitStatus = "${{ needs.unit-test.result }}" === "success" ? "✅" : "❌";
+            const e2eStatus = "${{ needs.e2e-test.result }}" === "success" ? "✅" : "❌";
 
-            // Sprawdź status poprzednich zadań
-            const lintStatus = '${{ needs.lint.result }}';
-            const unitTestStatus = '${{ needs.unit-test.result }}';
-            const e2eTestStatus = '${{ needs.e2e-test.result }}';
-            let unitTestCoverage = 'Brak danych';
-
-            // Spróbuj odczytać dane pokrycia testów jednostkowych
-            try {
-              if (fs.existsSync('./coverage/coverage-summary.json')) {
-                const coverageData = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
-                unitTestCoverage = `${coverageData.total.statements.pct}%`;
-              }
-            } catch (error) {
-              console.error('Błąd podczas odczytu danych pokrycia testów:', error);
-            }
-
-            // Utwórz treść komentarza
             let statusComment = '## Status PR\n\n';
-            statusComment += '| Test | Status | Coverage |\n';
-            statusComment += '|------|--------|----------|\n';
-            statusComment += `| Linting | ${lintStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'}  | - |\n`;
-            statusComment += `| Unit Tests | ${unitTestStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'} | ${unitTestCoverage} |\n`;
-            statusComment += `| E2E Tests | ${e2eTestStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'} | - |\n\n`;
+            statusComment += '| Test | Status |\n';
+            statusComment += '|------|--------|\n';
+            statusComment += `| Linting | ${lintStatus} |\n`;
+            statusComment += `| Unit Tests | ${unitStatus} |\n`;
+            statusComment += `| E2E Tests | ${e2eStatus} |\n\n`;
             statusComment += '### :warning: Niektóre testy nie przeszły. Szczegóły powyżej.';
 
-            // Dodaj komentarz do PR
             github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
+              owner: owner,
+              repo: repo,
+              issue_number: pr_number,
               body: statusComment
             });
