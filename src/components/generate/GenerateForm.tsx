@@ -22,7 +22,7 @@ export function GenerateForm({ sourceText, onSourceTextChange, onGenerate, disab
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-test-id="generate-form">
       <div className="space-y-2">
         <Label htmlFor="source-text">Tekst źródłowy</Label>
         <Textarea
@@ -32,14 +32,21 @@ export function GenerateForm({ sourceText, onSourceTextChange, onGenerate, disab
           placeholder="Wklej tutaj tekst do wygenerowania fiszek (1000-10000 znaków)..."
           className="min-h-[200px] max-h-[400px]"
           disabled={disabled}
+          data-test-id="source-text-input"
         />
 
-        {showError && <p className="text-sm text-destructive">Tekst musi mieć od 1000 do 10000 znaków</p>}
+        {showError && (
+          <p className="text-sm text-destructive" data-test-id="validation-error">
+            Tekst musi mieć od 1000 do 10000 znaków
+          </p>
+        )}
 
-        <p className="text-sm text-muted-foreground">Liczba znaków: {charCount}</p>
+        <p className="text-sm text-muted-foreground" data-test-id="char-count">
+          Liczba znaków: {charCount}
+        </p>
       </div>
 
-      <Button type="submit" disabled={disabled || !isValid}>
+      <Button type="submit" disabled={disabled || !isValid} data-test-id="generate-button">
         {disabled ? "Generowanie..." : "Generuj fiszki"}
       </Button>
     </form>

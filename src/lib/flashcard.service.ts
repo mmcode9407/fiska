@@ -1,9 +1,11 @@
 import type { SupabaseClient } from "../db/supabase.client";
 import type { CreateFlashcardDTO, FlashcardDTO } from "../types";
-import { DEFAULT_USER_ID } from "../db/supabase.client";
 
 export class FlashcardService {
-  constructor(private readonly supabase: SupabaseClient) {}
+  constructor(
+    private readonly supabase: SupabaseClient,
+    private readonly userId: string
+  ) {}
 
   /**
    * Tworzy wiele fiszek w bazie danych
@@ -14,7 +16,7 @@ export class FlashcardService {
     // Przygotowanie danych do wstawienia do bazy
     const flashcardsToInsert = flashcards.map((flashcard) => ({
       ...flashcard,
-      user_id: DEFAULT_USER_ID, // W przyszłości będzie zastąpione ID zalogowanego użytkownika
+      user_id: this.userId,
     }));
 
     // Batch insert - wstawienie wszystkich fiszek jednym zapytaniem
