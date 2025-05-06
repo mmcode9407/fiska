@@ -8,6 +8,9 @@ import cloudflare from "@astrojs/cloudflare";
 
 // https://astro.build/config
 export default defineConfig({
+  experimental: {
+    session: true,
+  },
   output: "server",
   adapter: cloudflare(),
   integrations: [react(), sitemap()],
