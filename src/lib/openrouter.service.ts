@@ -1,5 +1,6 @@
 import type { ModelParameters, ResponseData } from "./openrouter.types";
 import { responseSchema } from "./openrouter.types";
+import { OPENROUTER_API_KEY } from "astro:env/server";
 
 // Klasa serwisu OpenRouter
 export class OpenRouterService {
@@ -12,7 +13,7 @@ export class OpenRouterService {
   constructor() {
     // Pobieranie konfiguracji ze zmiennych środowiskowych
     this.apiEndpoint = "https://openrouter.ai/api/v1/chat/completions";
-    this.apiKey = import.meta.env.OPENROUTER_API_KEY;
+    this.apiKey = OPENROUTER_API_KEY;
 
     if (!this.apiEndpoint || !this.apiKey) {
       throw new Error("Brak wymaganych zmiennych środowiskowych dla OpenRouter API");
