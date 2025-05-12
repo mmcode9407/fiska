@@ -1,8 +1,31 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import AppLayout from "../layouts/AppLayout.astro";
+import { FlashcardView } from "../components/flashcard/FlashcardView";
+
+// Sprawdzenie czy użytkownik jest zalogowany
+const user = Astro.locals.user;
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="Moje fiszki">
+  {
+    user ? (
+      <AppLayout>
+        <FlashcardView client:load />
+      </AppLayout>
+    ) : (
+      <div class="container mx-auto py-8 text-center">
+        <h1 class="text-3xl font-bold mb-4">Witaj w aplikacji Fiska!</h1>
+        <p class="mb-6">Zaloguj się, aby zobaczyć swoje fiszki.</p>
+        <div class="flex justify-center gap-4">
+          <a href="/login" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90">
+            Zaloguj się
+          </a>
+          <a href="/register" class="bg-secondary text-white px-4 py-2 rounded-md hover:bg-secondary/90">
+            Zarejestruj się
+          </a>
+        </div>
+      </div>
+    )
+  }
 </Layout>
