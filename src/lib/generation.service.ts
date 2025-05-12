@@ -1,11 +1,10 @@
 import type { SupabaseClient } from "../db/supabase.client";
 import type { FlashcardProposalDTO, GenerationCreateResponseDTO } from "../types";
-import crypto from "crypto";
 import { OpenRouterService } from "./openrouter.service";
 
 export class GenerationService {
   private readonly openRouter: OpenRouterService;
-  private readonly model: string = "google/gemini-2.0-flash-exp:free";
+  private readonly model: string = "meta-llama/llama-4-maverick:free";
 
   constructor(
     private readonly supabase: SupabaseClient,
@@ -22,7 +21,7 @@ export class GenerationService {
       const flashcardsProposals = await this.generateFlashcardsWithAI(sourceText);
 
       // Generuj hash tekstu
-      const hashedText = this.generateHash(sourceText);
+      const hashedText = await this.generateHash(sourceText);
 
       // Zapisz metadane generacji do bazy danych
       const generationId = await this.saveGenerationMetadata({
@@ -40,7 +39,7 @@ export class GenerationService {
     } catch (error) {
       // W przypadku błędu, zapisz go do tabeli generation_error_logs
       await this.logGenerationError(error, {
-        hashedText: this.generateHash(sourceText),
+        hashedText: await this.generateHash(sourceText),
         sourceTextLength: sourceText.length,
       });
 
@@ -48,8 +47,13 @@ export class GenerationService {
     }
   }
 
-  private generateHash(text: string): string {
-    return crypto.createHash("md5").update(text).digest("hex");
+  private async generateHash(text: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    return hashHex;
   }
 
   private async generateFlashcardsWithAI(text: string): Promise<FlashcardProposalDTO[]> {
@@ -58,7 +62,8 @@ export class GenerationService {
     Każda fiszka powinna zawierać pytanie (front) i odpowiedź (back).
     Pytania powinny być zwięzłe i konkretne, a odpowiedzi jasne i precyzyjne.
     Nie twórz fiszek z definicjami, które są oczywiste lub zbyt proste.
-    Skoncentruj się na najważniejszych koncepcjach i związkach między nimi.`;
+    Skoncentruj się na najważniejszych koncepcjach i związkach między nimi.
+    Zwróć tylko tablicę fiszek, bez dodatkowych komentarzy.`;
 
     const userMessage = `Wygeneruj fiszki z poddanego tekstu: ${text}`;
 
