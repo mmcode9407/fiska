@@ -35,6 +35,40 @@ const createFlashcardsCommandSchema = z.object({
   flashcards: z.array(createFlashcardSchema).min(1, "Należy podać co najmniej jedną fiszkę"),
 });
 
+export const GET: APIRoute = async ({ locals }) => {
+  try {
+    // Sprawdzenie czy użytkownik jest zalogowany
+    if (!locals.user?.id) {
+      return new Response(
+        JSON.stringify({
+          error: "Nieautoryzowany dostęp",
+          details: "Musisz być zalogowany, aby przeglądać fiszki",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Pobranie fiszek z bazy danych
+    const flashcardService = new FlashcardService(locals.supabase, locals.user.id);
+    const flashcards = await flashcardService.getFlashcards();
+
+    return new Response(JSON.stringify(flashcards), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Błąd w endpoincie GET /api/flashcards:", error);
+
+    return new Response(JSON.stringify({ error: "Błąd wewnętrzny serwera" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Sprawdzenie czy użytkownik jest zalogowany
