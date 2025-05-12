@@ -1,7 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { AuthLayout } from "@/components/auth/AuthLayout";
+import AuthLayout from "@/layouts/AuthLayout.astro";
 
 export const prerender = false;
 
@@ -9,7 +9,7 @@ const registrationSuccess = Astro.url.searchParams.get("registered") === "true";
 ---
 
 <Layout title="Logowanie | Fiska">
-  <AuthLayout title="Zaloguj się" description="Wprowadź swoje dane, aby się zalogować" client:load>
+  <AuthLayout title="Zaloguj się" description="Wprowadź swoje dane, aby się zalogować">
     {
       registrationSuccess && (
         <div class="mb-4 p-3 bg-green-50 text-green-700 border border-green-200 rounded-md">
