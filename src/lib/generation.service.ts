@@ -8,9 +8,10 @@ export class GenerationService {
 
   constructor(
     private readonly supabase: SupabaseClient,
-    private readonly userId: string
+    private readonly userId: string,
+    openRouterApiKey: string
   ) {
-    this.openRouter = new OpenRouterService();
+    this.openRouter = new OpenRouterService(openRouterApiKey);
   }
 
   async generateFlashcards(sourceText: string): Promise<GenerationCreateResponseDTO> {

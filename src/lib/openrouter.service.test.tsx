@@ -2,8 +2,8 @@
 import { OpenRouterService } from "./openrouter.service";
 import type { ResponseData } from "./openrouter.types";
 
-// Mockowanie import.meta.env przed importem serwisu
-vi.stubEnv("OPENROUTER_API_KEY", "test-api-key");
+// Klucz API dla testów
+const TEST_API_KEY = "test-api-key";
 
 // Mockujemy globalny fetch
 const mockFetch = vi.fn();
@@ -29,7 +29,7 @@ describe("OpenRouterService - logika retry", () => {
 
   beforeEach(() => {
     // Inicjalizacja serwisu przed każdym testem
-    openRouterService = new OpenRouterService();
+    openRouterService = new OpenRouterService(TEST_API_KEY);
 
     // Resetujemy mocks
     vi.clearAllMocks();
