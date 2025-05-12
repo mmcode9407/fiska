@@ -1,11 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { GenerateView } from "../components/generate/GenerateView";
+import AppLayout from "../layouts/AppLayout.astro";
 ---
 
 <Layout title="Generuj fiszki z AI">
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Generuj fiszki z AI</h1>
+  <AppLayout>
+    <h2 class="text-3xl font-bold mb-8">Generuj fiszki z AI</h2>
     <GenerateView client:load />
-  </main>
+  </AppLayout>
 </Layout>

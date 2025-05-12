@@ -84,9 +84,9 @@ export function LoginForm() {
           <span className="text-muted-foreground">Nie masz jeszcze konta?</span>
           <Link href="/register">Zarejestruj się</Link>
         </div>
-        <Link href="/forgot-password" className="text-sm text-center">
+        {/* <Link href="/forgot-password" className="text-sm text-center">
           Zapomniałeś hasła?
-        </Link>
+        </Link> */}
       </CardFooter>
     </Card>
   );
