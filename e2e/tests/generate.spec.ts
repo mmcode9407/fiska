@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { GeneratePage } from "../models/GeneratePage";
 
+const sampleText =
+  "Kryzys demokracji w latach 30. XX wieku przyczynił się do wybuchu II wojny światowej. Ideologia faszystowska opanowała nie tylko Niemcy, ale także Włochy. Natomiast w wielu innych państwach Europy, w tym m.in. Hiszpanii i Portugalii, zapanowały rządy autorytarne. Jednak do rozpoczęcia najkrwawszego w dziejach ludzkości konfliktu zbrojnego doprowadziły przede wszystkim imperialne ambicje Hitlera. Kanclerz Rzeszy po przejęciu władzy wielokrotnie łamał postanowienia traktatu wersalskiego z 1919 roku. Przywódca nazistowskich Niemiec przywrócił powszechny obowiązek służby wojskowej i znacznie zwiększył wydatki na wojsko, co doprowadziło m.in. do ponownej remilitaryzacji Nadrenii. Adolf Hitler nieustannie dążył też do aneksji Austrii, z której pochodził. Dopiął swego w marcu 1938 r. wbrew traktatowi pokojowemu kończącego I wojnę światową. Wydarzenie to znane jest jako Anschluss, czyli w wolnym tłumaczeniu „przyłączenie”.Kilka miesięcy później ekspansywna polityka III Rzeszy doprowadziła - zgodnie z porozumieniem zawartym w Monachium - do przyłączenia części terytoriów Czechosłowacji do Niemiec. W „pokojowy” sposób chciano również wymusić na Polsce włączenie Wolnego Miasta Gdańska do Rzeszy oraz przeprowadzenia eksterytorialnej autostrady i linii kolejowej przez Prusy Wschodnie. Żądania strony niemieckiej, mimo gwarancji dostępu do gdańskiego portu oraz uszanowania praw mniejszości polskiej, nie spotkały się z aprobatą rządu w Warszawie i były kilkukrotnie odrzucane. Efekt? Ultimatum niemieckie w marcu 1939 r., które Polska także odrzuciła.".trim();
+
 test.describe("Generowanie fiszek", () => {
   let generatePage: GeneratePage;
 
@@ -9,75 +12,49 @@ test.describe("Generowanie fiszek", () => {
     await generatePage.goto();
   });
 
-  test("GEN-001: Pomyślne wygenerowanie fiszek dla tekstu o poprawnej długości", async ({ page }) => {
-    // Arrange
-    const sampleText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-      .repeat(25) // każde powtórzenie ma 56 znaków, więc 25 * 56 = 1400 znaków
-      .trim(); // usuwamy ewentualne białe znaki z końca
-
-    // Act
+  test("GEN-001: Pomyślne wygenerowanie fiszek dla tekstu o poprawnej długości", async () => {
     await generatePage.enterText(sampleText);
     await generatePage.generate();
 
-    // Assert
     const flashcardsList = await generatePage.expectFlashcardsGenerated();
 
-    // Weryfikacja liczby wygenerowanych fiszek
     await flashcardsList.expectAtLeastOneFlashcard();
 
-    // Weryfikacja stanu początkowego fiszek
     const flashcards = await flashcardsList.getAllFlashcards();
     for (const flashcard of flashcards) {
-      // Sprawdzenie czy fiszka jest widoczna i ma poprawną strukturę
       await expect(flashcard.container).toBeVisible();
 
-      // Sprawdzenie czy fiszka nie jest zaakceptowana
       await flashcard.expectAccepted(false);
 
-      // Sprawdzenie czy pola tekstowe są wypełnione i zablokowane
       await expect(flashcard.frontTextarea).toBeDisabled();
       await expect(flashcard.backTextarea).toBeDisabled();
+
       await expect(flashcard.frontTextarea).not.toBeEmpty();
       await expect(flashcard.backTextarea).not.toBeEmpty();
     }
 
-    // Weryfikacja możliwości edycji pierwszej fiszki
     const firstFlashcard = await flashcardsList.getFirstFlashcard();
 
-    // Test edycji
     await firstFlashcard.editContent("Nowy przód fiszki", "Nowy tył fiszki");
     await firstFlashcard.saveChanges();
 
-    // Weryfikacja zapisanych zmian
     await firstFlashcard.expectContent("Nowy przód fiszki", "Nowy tył fiszki");
 
-    // Test akceptacji
     await firstFlashcard.accept();
     await firstFlashcard.expectAccepted(true);
-
-    // Zrzut ekranu dla dokumentacji
-    await page.screenshot({
-      path: "test-results/gen-001-success.png",
-      fullPage: true,
-    });
   });
 
   test("GEN-001: Weryfikacja stanu ładowania podczas generowania", async () => {
-    const sampleText = "a".repeat(1500);
     await generatePage.enterText(sampleText);
 
-    // Rozpoczęcie generowania i natychmiastowa weryfikacja stanu ładowania
     const generatePromise = generatePage.generate();
 
-    // Weryfikacja czy przycisk i pole tekstowe są zablokowane
     await expect(generatePage.generateButton).toBeDisabled();
     await expect(generatePage.sourceTextArea).toBeDisabled();
 
-    // Weryfikacja czy skeleton jest wyświetlany
     const skeleton = generatePage.page.locator('[data-test-id="generation-skeleton"]');
     await expect(skeleton).toBeVisible();
 
-    // Czekamy na zakończenie generowania
     await generatePromise;
   });
 });

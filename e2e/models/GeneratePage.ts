@@ -28,13 +28,10 @@ export class GeneratePage {
   }
 
   async enterText(text: string) {
-    // Czyścimy pole tekstowe przed wprowadzeniem nowego tekstu
     await this.sourceTextArea.clear();
-    // Używamy type() zamiast fill() aby lepiej symulować rzeczywiste wprowadzanie tekstu
     await this.sourceTextArea.type(text, { delay: 0 });
-    // Sprawdzamy czy tekst został wprowadzony
+
     await expect(this.sourceTextArea).toHaveValue(text);
-    // Sprawdzamy czy licznik znaków się zaktualizował
     await expect(this.charCount).toContainText(`Liczba znaków: ${text.length}`, {
       timeout: 10000,
     });
@@ -46,12 +43,15 @@ export class GeneratePage {
   }
 
   async waitForGeneration() {
-    // Czekamy na skeleton podczas generowania
     const skeleton = this.page.locator('[data-test-id="generation-skeleton"]');
     await expect(skeleton).toBeVisible();
 
-    // Czekamy na pojawienie się fiszek lub błędu
-    await Promise.race([expect(this.flashcardsContainer).toBeVisible(), expect(this.errorMessage).toBeVisible()]);
+    await Promise.race([
+      expect(this.flashcardsContainer).toBeVisible({ timeout: 30000 }),
+      expect(this.errorMessage).toBeVisible({ timeout: 30000 }),
+    ]);
+
+    await expect(skeleton).not.toBeVisible();
   }
 
   async expectValidationError() {
